@@ -114,6 +114,52 @@ class TestCase(unittest.TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(b'Upload new library file', response.data)
 		
+	# Test admin pages  
+	def test_public_profile(self):
+		if app.config['APP_NAME'] != 'Unikey':
+			return
+		
+		helper_functions.register_admin_user()
+		helper_functions.login(self, 'Patrick')
+		
+		# Edit the user profile
+		response = self.app.post(
+			'/user/profile/edit',
+			content_type='multipart/form-data', 
+			data={
+				'profile_name': 'Test profile name',
+				'profile_title': 'Test profile title',
+				'profile_education': 'Test profile education',
+				'profile_qualification': 'Test qualifications Patrick',
+				'profile_text': 'Test profile text'
+			},
+			follow_redirects = True)
+		
+		# View profile
+		response = self.app.get('/user/profile/1', follow_redirects=True)
+		self.assertIn(b'Test profile education', response.data)
+		
+		# Edit again
+		response = self.app.post(
+			'/user/profile/edit',
+			content_type='multipart/form-data', 
+			data={
+				'profile_name': 'Test profile name edited',
+				'profile_title': 'Test profile title edited',
+				'profile_education': 'Test profile education edited',
+				'profile_qualification': 'Test qualifications Patrick edited',
+				'profile_text': 'Test profile text edited'
+			},
+			follow_redirects = True)
+		
+		# View profile
+		response = self.app.get('/user/profile/1', follow_redirects=True)
+		self.assertIn(b'Test profile name edited', response.data)
+		self.assertIn(b'Test profile title edited', response.data)
+		self.assertIn(b'Test profile education edited', response.data)
+		self.assertIn(b'Test qualifications Patrick edited', response.data)
+		self.assertIn(b'Test profile text edited', response.data)
+		
 		
 if __name__ == '__main__':
 	
