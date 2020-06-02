@@ -36,8 +36,8 @@ class TestCase(unittest.TestCase):
 		
 		# Register student and admin
 		helper_functions.register_admin_user()
-		helper_functions.logout(self)
 		helper_functions.add_turma ()
+		helper_functions.logout(self)
 		helper_functions.register_student (self, 'Pablo')
 		
 		# Check the empty statement page contains a link to the builder
@@ -78,6 +78,12 @@ class TestCase(unittest.TestCase):
 		self.assertIn(b"You haven't uploaded any statements", response.data)
 		
 		# Upload a first draft statement
+		# Silence Python warnings
+		#!# The next upload function throws this warning:
+		# ResourceWarning: unclosed file <_io.BufferedReader name (...)
+		# To fix?
+		warnings.filterwarnings(action="ignore", message="unclosed", category=ResourceWarning) 
+		
 		with open('test.pdf', 'rb') as test_file:
 			fileIO = BytesIO(test_file.read())
 			response = self.app.post(
