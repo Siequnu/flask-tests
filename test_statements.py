@@ -91,7 +91,7 @@ class TestCase(unittest.TestCase):
 		self.assertIn(b'New personal statement successfully uploaded!', response.data)
 		self.assertIn(b'test.pdf', response.data)
 		
-		# View empty priject
+		# View empty project
 		response = self.app.get('/statements/project/view/1', follow_redirects = True)
 		self.assertNotIn(b"You haven't uploaded any statements", response.data)
 		self.assertIn(b'Test upload description', response.data)
@@ -110,9 +110,46 @@ class TestCase(unittest.TestCase):
 		response = self.app.get('/', follow_redirects = True)
 		self.assertIn(b'Personal statements needing review', response.data)
 		
+		# View statements main page
+		response = self.app.get('/statements', follow_redirects = True)
+		self.assertIn(b'Pablo', response.data)
+		self.assertIn(b'Test statement project', response.data)
+		
+		# Archive this project and verify it does not appear on main statements page
+		response = self.app.get('/statements/archive/1', follow_redirects = True)
+		self.assertIn(b'Statement project archived successfully', response.data)
+		
+		response = self.app.get('/statements', follow_redirects = True)
+		self.assertNotIn(b'Pablo', response.data)
+		self.assertNotIn(b'Test statement project', response.data)
+		
+		# View archive
+		response = self.app.get('/statements/archive', follow_redirects = True)
+		self.assertIn(b'Pablo', response.data)
+		self.assertIn(b'Test statement project', response.data)
+		
+		# Unarchive project
+		response = self.app.get('/statements/unarchive/1', follow_redirects = True)
+		self.assertIn(b'Statement project unarchived successfully', response.data)
+		
+		# View archive
+		response = self.app.get('/statements/archive', follow_redirects = True)
+		self.assertNotIn(b'Pablo', response.data)
+		self.assertNotIn(b'Test statement project', response.data)
+		
+		# View statements main page
+		response = self.app.get('/statements', follow_redirects = True)
+		self.assertIn(b'Pablo', response.data)
+		self.assertIn(b'Test statement project', response.data)
+		
 		# Delete this project
 		response = self.app.get('statements/project/delete/1', follow_redirects = True)
 		self.assertIn(b'Statement deleted successfully', response.data)
+		
+		# Archive this project and verify it does not appear on main statements page
+		response = self.app.get('/statements/archive/1', follow_redirects = True)
+		self.assertIn(b'An error occured', response.data)
+		
 		
 		# Create a new project
 		helper_functions.logout (self)
@@ -185,7 +222,24 @@ class TestCase(unittest.TestCase):
 		response = self.app.get('/statements/archive/2', follow_redirects = True)
 		self.assertEqual(response.status_code, 403)
 		
+		helper_functions.logout (self)
+		helper_functions.login (self, 'Pingkee')
 		
+		# Permissions tests
+		response = self.app.get('/statements/project/view/2', follow_redirects = True)
+		self.assertEqual(response.status_code, 403)
+		
+		response = self.app.get('/statements/project/delete/1', follow_redirects = True)
+		self.assertEqual(response.status_code, 403)
+		
+		response = self.app.get('/statements/project/delete/2', follow_redirects = True)
+		self.assertEqual(response.status_code, 403)
+		
+		response = self.app.get('/statements/project/edit/2', follow_redirects = True)
+		self.assertEqual(response.status_code, 403)
+		
+		response = self.app.get('/statements/archive/2', follow_redirects = True)
+		self.assertEqual(response.status_code, 403)
 
 
 if __name__ == '__main__':
