@@ -31,7 +31,7 @@ class TestCase(unittest.TestCase):
 	
 	# Test adding a peer review form
 	def test_references (self):
-		if app.config['APP_NAME'] != 'Unikey' or app.config['APP_NAME'] != 'elmOnline':
+		if app.config['APP_NAME'] == 'workUp':
 			return
 		
 		# Register student and admin
