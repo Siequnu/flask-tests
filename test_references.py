@@ -103,7 +103,7 @@ class TestCase(unittest.TestCase):
 		
 		response = self.app.get('/references/view/pdf/1', follow_redirects=True)
 		self.assertEqual(response.status_code, 200)
-		self.assertIn(b"Unikey Student Reference", response.data)
+		self.assertIn(b"Student Reference", response.data)
 		
 		# Upload a reference version
 		response = self.app.get('/references/1/version/upload', follow_redirects=True)
