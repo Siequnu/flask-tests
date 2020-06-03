@@ -30,8 +30,6 @@ class TestCase(unittest.TestCase):
 		
 	# Test admin pages  
 	def test_mentors(self):
-		if app.config['APP_NAME'] != 'Unikey':
-			return
 		
 		helper_functions.register_admin_user()
 		helper_functions.logout(self)
