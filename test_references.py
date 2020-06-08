@@ -31,9 +31,6 @@ class TestCase(unittest.TestCase):
 	
 	# Test adding a peer review form
 	def test_references (self):
-		if app.config['APP_NAME'] == 'workUp':
-			return
-		
 		# Register student and admin
 		helper_functions.register_admin_user()
 		helper_functions.logout(self)
