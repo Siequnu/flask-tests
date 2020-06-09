@@ -13,6 +13,7 @@ app = create_app(Test)
 from app import db
 from app.models import User, Turma, LibraryUpload, PeerReviewForm
 
+# Set the test DB
 TEST_DB = 'test.db'
 
 
