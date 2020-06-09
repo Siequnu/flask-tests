@@ -97,8 +97,9 @@ class TestCase(unittest.TestCase):
 			self.assertIn(b'Trusted University Application Consultants', response.data)
 		elif app.config['APP_NAME'] == 'workUp':
 			self.assertIn(b'Student registration', response.data)
+		elif app.config['APP_NAME'] == 'elmOnline':
+			self.assertIn(b'Elm Education', response.data)
 
-		
 		
 	# Test admin pages  
 	def test_admin_pages(self):
