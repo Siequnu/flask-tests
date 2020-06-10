@@ -11,8 +11,9 @@ app = create_app(Test)
 
 # Flask models
 from app import db
-from app.models import User, Turma, LibraryUpload, PeerReviewForm, ApiKey
+from app.models import User, Turma, LibraryUpload, PeerReviewForm
 from app.api import models
+from app.api.models import ApiKey
 
 # Set the test DB
 TEST_DB = 'test.db'
