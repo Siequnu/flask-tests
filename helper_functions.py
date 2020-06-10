@@ -1,6 +1,6 @@
 # Python testing framework
 from io import BytesIO, StringIO
-import os, unittest, warnings, string, random
+import os, unittest, warnings, string, random, secrets
 
 # Flask 
 from app import create_app
@@ -11,7 +11,8 @@ app = create_app(Test)
 
 # Flask models
 from app import db
-from app.models import User, Turma, LibraryUpload, PeerReviewForm
+from app.models import User, Turma, LibraryUpload, PeerReviewForm, ApiKey
+from app.api import models
 
 # Set the test DB
 TEST_DB = 'test.db'
@@ -108,3 +109,10 @@ def add_peer_review_form ():
 	db.session.flush ()
 	db.session.commit ()
 
+
+# Create new API key
+def create_api_key ():
+		key = secrets.token_urlsafe(40)
+		description = 'Key for testing the API'
+		models.create_new_api_key(key, description)
+		return key

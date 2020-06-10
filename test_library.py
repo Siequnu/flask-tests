@@ -11,6 +11,7 @@ app = create_app(Test)
 
 # Flask models
 from app import db
+from app.files import models
 from app.models import User, Turma, LibraryUpload, PeerReviewForm
 
 TEST_DB = 'test.db'
@@ -28,7 +29,80 @@ class TestCase(unittest.TestCase):
 		db.session.remove()
 		db.drop_all()
 		
-	def test_library (self):
+	def test_library_api (self):
+		# Add a class and a new admin user
+		helper_functions.add_turma ()
+		helper_functions.register_admin_user()	
+		helper_functions.register_student (self, 'Pablo')
+
+		helper_functions.logout (self)
+		helper_functions.login(self, 'Patrick')
+
+		# Create a new API key
+		api_key = helper_functions.create_api_key ()
+		
+		# Add a test library file
+		#!# This should be done via a new API call, or at least the model, not via the GUI
+		with open('test.pdf', 'rb') as test_file:
+			fileIO = BytesIO(test_file.read())
+			response = self.app.post(
+				'/files/library/upload/',
+				content_type='multipart/form-data', 
+				data={
+					'library_upload_file': (fileIO, 'test.pdf'),
+					'title': 'Test library upload',
+					'description': 'Test library upload description',
+					'target_turmas': 1
+					},
+				follow_redirects=True)
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(b'New file successfully added to the library!', response.data)
+		assert LibraryUpload.query.get(1).title == 'Test library upload'
+
+		# Test get all uploads
+		response = self.app.get(
+			'/api/v1/library',
+			content_type = 'application/json', 
+			headers = {'key': api_key}
+		)
+		json = response.get_json()
+		assert len(json) == 1
+		item = json.pop()
+		assert item['id'] == 1
+		assert item['title'] == 'Test library upload'
+		assert item['description'] == 'Test library upload description'
+
+		# Test get single upload
+		response = self.app.get(
+			'/api/v1/library/1', 
+			headers = {'key': api_key}
+		)
+		json = response.get_json()
+		assert json['id'] == 1
+		assert json['title'] == 'Test library upload'
+		assert json['description'] == 'Test library upload description'
+
+		# Test PUT to edit item
+		data = {
+			'title': 'Test library upload edited',
+			'description': 'Test library upload edited description'}
+		response = self.app.put(
+    		'/api/v1/library/1', 
+    		json = data,
+			headers = {'key': api_key}
+		)
+		json = response.get_json()
+		assert json['id'] == 1
+		assert json['title'] == 'Test library upload edited'
+		assert json['description'] == 'Test library upload edited description'
+
+
+
+
+
+		
+
+	def test_library_gui (self):
 		# Add a class and a new admin user
 		helper_functions.add_turma ()
 		helper_functions.add_turma ()
@@ -64,6 +138,13 @@ class TestCase(unittest.TestCase):
 		response = self.app.get('/files/library/view/downloads/1', follow_redirects=True)
 		self.assertNotIn(b'Pablo', response.data)
 		
+		# Silence Python warnings
+		#!# The next upload function throws this warning:
+		# ResourceWarning: unclosed file <_io.BufferedReader name (...)
+		# To fix?
+		warnings.filterwarnings(action="ignore", message="unclosed", category=ResourceWarning) 
+		
+
 		# Edit this file
 		# This does not trigger the JS/AJAX modal popup, it follows to the old upload form
 		response = self.app.get('/files/library/edit/1', follow_redirects=True)
