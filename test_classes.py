@@ -11,11 +11,11 @@ app = create_app(Test)
 
 # Flask models
 from app import db
-from app.classes.models import AbsenceJustificationUpload
+from app.classes.models import AbsenceJustificationUpload, AttendanceCode
 
 TEST_DB = 'test.db'
 
-from . import helper_functions
+import helper_functions
 
 class TestCase(unittest.TestCase):
 	
@@ -141,17 +141,121 @@ class TestCase(unittest.TestCase):
 		response = self.app.get('/classes/attendance/view/1', follow_redirects=True)
 		self.assertIn(b'0 / 1', response.data)		
 
-		#¡# What about deleting the absence justification
+		# Delete the absence justification
+		response = self.app.get('/classes/absence/justification/delete/1', follow_redirects=True)
+		self.assertIn(b'Deleted student absence justification', response.data)
+
+		# Resubmit as a student
+		helper_functions.logout (self)
+		helper_functions.login(self, 'Pablo')
+
+		# Add an absence justification
+		with open('test.pdf', 'rb') as test_file:
+			fileIO = BytesIO(test_file.read())
+			response = self.app.post(
+				'/classes/absence/justification/1',
+				content_type='multipart/form-data', 
+				data={
+					'absence_justification_file': (fileIO, 'test.pdf'),
+					'justification': 'Justification description again'
+					},
+				follow_redirects=True)
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(b'New justification uploaded successfully!', response.data)
+		self.assertIn(b'View uploaded justification', response.data)
+
+		helper_functions.logout (self)
+		helper_functions.login(self, 'Patrick')
 
 		# As a teacher, view the absence justification
-		response = self.app.get('/classes/absence/view/1', follow_redirects=True)
+		response = self.app.get('/classes/absence/view/2', follow_redirects=True)
 		self.assertIn(b'Absence justification for', response.data)
-		self.assertIn(b'Justification description', response.data)
+		self.assertIn(b'Justification description again', response.data)
 		
 		# Approve this justification
 		response = self.app.get('/classes/attendance/present/2/1', follow_redirects=True)
 		self.assertIn(b'as in attendance', response.data)
 		self.assertIn(b'1 / 1', response.data)	
+
+		# Create a new lesson
+		# Add a new lesson
+		response = self.app.post(
+			'/classes/lesson/create/1',
+			content_type='multipart/form-data',
+			data={
+				'start_time': '10:00',
+				'end_time': '11:30',
+				'date': '2020-12-12'
+			},
+			follow_redirects=True)
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(b'New lesson added for', response.data)
+
+		# Check non-existent lesson
+		response = self.app.get('/classes/attendance/view/999999', follow_redirects=True)
+		self.assertIn(b'Could not locate the lesson you wanted', response.data)	
+		
+		# As a teacher, view the class attendance again
+		response = self.app.get('/classes/attendance/view/1', follow_redirects=True)
+		self.assertIn(b'1 / 1', response.data)	
+		response = self.app.get('/classes/attendance/view/2', follow_redirects=True)
+		self.assertIn(b'0 / 1', response.data)	
+
+		# Register a new student 
+		helper_functions.logout (self)
+		helper_functions.register_student (self, 'Pingkee')
+
+		# Try to sign up to the class without a valid log-in code
+		response = self.app.post(
+			'/classes/attendance/code/',
+			content_type='multipart/form-data',
+			data={
+				'attendance': 'nonvalidcode'
+			},
+			follow_redirects=True)
+		self.assertEqual(response.status_code, 200)
+		self.assertIn(b'Your code was invalid', response.data)
+
+		# Log-in as admin and create a code for this class
+		helper_functions.logout (self)
+		helper_functions.login (self, 'Patrick')
+
+		# As a teacher, view the class attendance again
+		response = self.app.get('/classes/attendance/view/1', follow_redirects=True)
+		self.assertIn(b'1 / 2', response.data)	
+
+		response = self.app.get('/classes/attendance/qr/1/', follow_redirects=True)
+		self.assertIn(b'The registration code is:', response.data)	
+		
+		# This will be the second attendance code
+		attendance_code = AttendanceCode.query.get(2).code
+
+		# Log-in as student and try this code
+		helper_functions.logout (self)
+		helper_functions.login (self, 'Pingkee')
+		response = self.app.post(
+			'/classes/attendance/code/',
+			content_type='multipart/form-data',
+			data={
+				'attendance': attendance_code
+			},
+			follow_redirects=True)
+		self.assertEqual(response.status_code, 200)
+		# On successful entry, will display {{greeting}}, user.username 
+		self.assertIn(b', Pingkee', response.data)
+
+		# Log-in as admin and view class attendance
+		helper_functions.logout (self)
+		helper_functions.login (self, 'Patrick')
+		response = self.app.get('/classes/attendance/view/1', follow_redirects=True)
+		self.assertIn(b'2 / 2', response.data)	
+		
+		# Delete the class
+		#!# Can class be delete with open attendance code?
+		response = self.app.get('/classes/lesson/delete/2', follow_redirects=True)
+		self.assertIn(b'Lesson removed!', response.data)	
+
+
 		
 
 if __name__ == '__main__':
