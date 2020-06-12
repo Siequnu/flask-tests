@@ -12,10 +12,11 @@ app = create_app(Test)
 
 # Flask models
 from app import db
-from app.models import User, Turma, LibraryUpload, PeerReviewForm
 
 from app.api import models
 from app.api.models import ApiKey
+
+from app.consultations.models import Consultation
 
 import json 
 
@@ -44,7 +45,7 @@ class TestCase(unittest.TestCase):
 		helper_functions.logout(self)
 
 		# Create new API key
-		api_key = helper_functions.create_api_key
+		api_key = helper_functions.create_api_key ()
 		
 		# View student management page
 		response = self.app.get('/consultations', follow_redirects=True)
@@ -57,26 +58,96 @@ class TestCase(unittest.TestCase):
 		# View student search page
 		response = self.app.get('/consultations/book/search', follow_redirects=True)
 		self.assertIn(b'Pablo', response.data)
-		return 
-		# Add a mentor
-		response = self.app.get('consultations/book/2/calendar', follow_redirects=True)
-		self.assertIn(b'Schedule a consultation with Pablo', response.data)
+
+		# Add details to the consultation
+		response = self.app.get('consultations/book/2', follow_redirects=True)
+		self.assertIn(b'Save consultation details', response.data)
+		
 		response = self.app.post(
-			'/api/v1/consultation/',
+				'/consultations/details/1/edit',
+				content_type='multipart/form-data', 
+				data={
+					'title': 'Consultation title',
+					'description': 'Consultation description',
+					},
+				follow_redirects=True)
+		self.assertIn(b'Saved the consultation details', response.data)
+		
+		# Add scheduling time slots
+		response = self.app.get('/consultations/1/book/calendar', follow_redirects=True)
+		self.assertIn(b'Scheduling options', response.data)
+		
+		# Go to the javascript scheduling page
+		response = self.app.get('/consultations/book/schedule/1/', follow_redirects=True)
+		
+		# Submit a schedule via the API
+		response = self.app.post(
+			'/api/v1/consultation/schedule',
 			content_type='application/json', 
 			headers= {
 				'key': api_key
 			},
 			data=json.dumps(dict(
-				date='2020-02-02',
-				start_time = '09:00',
-				end_time = '10:00',
-				teacher_id = '1',
-				student_id = '2'
+				consultation_id = '1',
+				date='2020-08-12',
+				start_time = '18:18',
+				end_time = '18:19'
 			)))
-		print (response.json)
-		#self.assertEqual(response.status_code, 200)
-		#print (response.data)
+
+		json_response = response.get_json ()
+		self.assertEqual(response.status_code, 200)
+		self.assertEqual(json_response['date'], '2020-08-12')
+		self.assertEqual(json_response['consultation_id'], 1)
+		self.assertEqual(json_response['start_time'], '18:18:00')
+		self.assertEqual(json_response['end_time'], '18:19:00')
+		
+		# View added time slot
+		response = self.app.get('/consultations/1/book/calendar', follow_redirects=True)
+		self.assertIn(b'Scheduling options', response.data)
+		self.assertIn(b'18:18', response.data)
+
+		# Use this time slot
+		response = self.app.get('/consultations/book/schedule/set/1/', follow_redirects=True)
+		self.assertIn(b'Time slot saved.', response.data)
+		self.assertIn(b'12', response.data)
+
+		# Add pre-reading files?
+
+		# Add a report
+		response = self.app.get('/consultations/1/report/add', follow_redirects=True)
+		self.assertIn(b'Save report details', response.data)
+		
+		response = self.app.post(
+				'/consultations/1/report/add',
+				content_type='multipart/form-data', 
+				data={
+					'summary': 'Report summary',
+					'report': 'Report details',
+					},
+				follow_redirects=True)
+		self.assertIn(b'Added the consultation report', response.data)
+		self.assertIn(b'Report by Patrick', response.data)
+		self.assertIn(b'Report summary', response.data)
+		self.assertIn(b'Report details', response.data)
+
+		# Edit the report
+		response = self.app.get('/consultations/1/report/view/1', follow_redirects=True)
+		self.assertIn(b'Save report details', response.data)
+		
+		response = self.app.post(
+				'/consultations/1/report/view/1',
+				content_type='multipart/form-data', 
+				data={
+					'summary': 'Report edited summary',
+					'report': 'Report edited details',
+					},
+				follow_redirects=True)
+		self.assertIn(b'Added the consultation report', response.data)
+		self.assertIn(b'Report by Patrick', response.data)
+		self.assertIn(b'Report edited summary', response.data)
+		self.assertIn(b'Report edited details', response.data)
+
+		#!# Upload report files
 		
 		
 if __name__ == '__main__':
