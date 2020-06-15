@@ -98,8 +98,8 @@ class TestCase(unittest.TestCase):
 		self.assertEqual(response.status_code, 200)
 		self.assertEqual(json_response['date'], '2020-08-12')
 		self.assertEqual(json_response['consultation_id'], 1)
-		self.assertEqual(json_response['start_time'], '18:18:00')
-		self.assertEqual(json_response['end_time'], '18:19:00')
+		self.assertEqual(json_response['start_time'], '2020-08-12T18:18:00')
+		self.assertEqual(json_response['end_time'], '2020-08-12T18:19:00')
 		
 		# View added time slot
 		response = self.app.get('/consultations/1/book/calendar', follow_redirects=True)
