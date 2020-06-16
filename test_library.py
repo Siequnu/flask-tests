@@ -36,7 +36,7 @@ class TestCase(unittest.TestCase):
 		helper_functions.register_student (self, 'Pablo')
 
 		helper_functions.logout (self)
-		helper_functions.login(self, 'Patrick')
+		helper_functions.login (self, 'Patrick')
 
 		# Create a new API key
 		api_key = helper_functions.create_api_key ()
