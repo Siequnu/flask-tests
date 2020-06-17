@@ -77,10 +77,7 @@ def register_student(self, username, password = 'test', confirm_email = True, ):
 		# Check that the user can now log-in properly
 		response = login(self, username, 'test')
 		self.assertEqual(response.status_code, 200)
-		if app.config['APP_NAME'] == 'Unikey' or app.config['APP_NAME'] == 'elmOnline':
-			self.assertIn(b'Your milestones', response.data)
-		elif app.config['APP_NAME'] == 'workUp':
-			self.assertIn(b'You have attended', response.data)
+			
 	else:
 		pass
 
