@@ -31,8 +31,9 @@ class TestCase(unittest.TestCase):
 	# Test admin pages  
 	def test_mentors(self):
 		
-		helper_functions.register_admin_user()
+		helper_functions.register_admin_user() # Registers Patrick as an admin user
 		helper_functions.logout(self)
+		helper_functions.register_admin_user('Pingkee') # Registers Pingkee
 		helper_functions.add_turma ()
 		helper_functions.register_student (self, 'Pablo')
 		helper_functions.logout(self)
@@ -46,22 +47,23 @@ class TestCase(unittest.TestCase):
 		self.assertIn(b'Pablo', response.data)
 		
 		# View mentors admin page
-		response = self.app.get('/mentors/student/2', follow_redirects=True)
+		response = self.app.get('/mentors/student/3', follow_redirects=True)
 		self.assertIn(b'Pablo currently has 0 mentors.', response.data)
 		
 		# Add a mentor
-		response = self.app.get('/mentors/search/2', follow_redirects=True)
-		self.assertIn(b'Patrick', response.data)
+		response = self.app.get('/mentors/search/3', follow_redirects=True)
+		self.assertIn(b'Pingkee', response.data)
 		
-		response = self.app.get('/mentors/add/2/1', follow_redirects=True)
+		response = self.app.get('/mentors/add/3/2', follow_redirects=True)
 		self.assertIn(b'Mentor added successfully.', response.data)
 		
 		# Add another mentor
-		response = self.app.get('/mentors/search/2', follow_redirects=True)
-		self.assertNotIn(b'Patrick', response.data)
+		response = self.app.get('/mentors/search/3', follow_redirects=True)
+		# Patrick is now in the footer
+		self.assertNotIn(b'Pingkee', response.data)
 		
 		# Remove mentor
-		response = self.app.get('/mentors/remove/2/1', follow_redirects=True)
+		response = self.app.get('/mentors/remove/3/2', follow_redirects=True)
 		self.assertIn(b'Mentor removed successfully.', response.data)
 		
 		
