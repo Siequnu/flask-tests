@@ -28,14 +28,16 @@ def login(self, username, password = 'test'):
 def logout(self):
 	return self.app.get('/user/logout',follow_redirects=True)
 
-# Create an admin called Patrick with password test
-def register_admin_user ():
-	admin_user = User(username='Patrick', email='patrick@example.com', student_number='12345', email_confirmed = 1, is_admin = 1)
+# Create an admin called Patrick (default) with password test
+def register_admin_user (username = 'Patrick'):
+	random_email = ''.join(random.choice(string.ascii_lowercase) for i in range(8))
+	random_student_number = ''.join(str(random.randint(1,9)) for i in range(8))
+	admin_user = User(username=username, email=random_email, student_number=random_student_number, email_confirmed = 1, is_admin = 1)
 	admin_user.set_password('test')
 	db.session.add(admin_user)
 	db.session.commit()
 	
-	new_admin_user = db.session.query(User).filter_by(username='Patrick').first()
+	new_admin_user = db.session.query(User).filter_by(username=username).first()
 	assert new_admin_user.is_admin == True
 
 
