@@ -33,10 +33,10 @@ class TestCase(unittest.TestCase):
 		# Does main index page display student registration link?
 		response = self.app.get('/', follow_redirects=True)
 		self.assertEqual(response.status_code, 200)
-		if app.config['APP_NAME'] == 'Unikey':
-			self.assertIn(b'Trusted University Application Consultants', response.data)
-		elif app.config['APP_NAME'] == 'workUp':
-			self.assertIn(b'Student registration', response.data)
+		if app.config['APP_NAME'] == 'workUp':
+			self.assertIn(b'License WorkUp for your institution', response.data)
+		elif app.config['APP_NAME'] == 'elmOnline':
+			self.assertIn(b'Elm Education', response.data)
 		
 		
 		# Does attempting to access library trigger a log-in prompt
@@ -93,10 +93,8 @@ class TestCase(unittest.TestCase):
 		
 		response = helper_functions.logout(self)
 		self.assertEqual(response.status_code, 200)
-		if app.config['APP_NAME'] == 'Unikey':
-			self.assertIn(b'Trusted University Application Consultants', response.data)
-		elif app.config['APP_NAME'] == 'workUp':
-			self.assertIn(b'Student registration', response.data)
+		if app.config['APP_NAME'] == 'workUp':
+			self.assertIn(b'License WorkUp for your institution', response.data)
 		elif app.config['APP_NAME'] == 'elmOnline':
 			self.assertIn(b'Elm Education', response.data)
 
