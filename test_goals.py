@@ -32,8 +32,13 @@ class TestCase(unittest.TestCase):
 		db.session.remove()
 		db.drop_all()
 		
-	# Test admin pages  
+	# Test goal pages
 	def test_goals(self):
+		
+		#¡# This function only available on Elm, as the workUp user home screen does not show goals
+		if app.config['APP_NAME'] == 'workUp':
+			print ('Skipping Goal testing as we are running as workUp')
+			return True
 		
 		helper_functions.register_admin_user()
 		helper_functions.logout(self)
