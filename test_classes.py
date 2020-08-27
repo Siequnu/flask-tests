@@ -127,7 +127,7 @@ class TestCase(unittest.TestCase):
 				follow_redirects=True)
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(b'New justification uploaded successfully!', response.data)
-		self.assertIn(b'View uploaded justification', response.data)
+		self.assertIn(b'View uploaded', response.data)
 
 		# View this absence justification
 		response = self.app.get('/classes/absence/view/1', follow_redirects=True)
@@ -162,7 +162,7 @@ class TestCase(unittest.TestCase):
 				follow_redirects=True)
 		self.assertEqual(response.status_code, 200)
 		self.assertIn(b'New justification uploaded successfully!', response.data)
-		self.assertIn(b'View uploaded justification', response.data)
+		self.assertIn(b'View uploaded', response.data)
 
 		helper_functions.logout (self)
 		helper_functions.login(self, 'Patrick')
