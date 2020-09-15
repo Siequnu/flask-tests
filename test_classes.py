@@ -39,6 +39,7 @@ class TestCase(unittest.TestCase):
 		# Add a class and a new admin user
 		helper_functions.add_turma ()
 		helper_functions.register_admin_user()	
+		helper_functions.add_teacher_to_class (teacher_id = 1, turma_id = 1)
 		helper_functions.register_student (self, 'Pablo')
 
 		helper_functions.logout (self)

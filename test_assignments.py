@@ -76,6 +76,7 @@ class TestCase(unittest.TestCase):
 		helper_functions.add_turma ()
 		helper_functions.register_student (self, 'Pablo')
 		helper_functions.register_admin_user()
+		helper_functions.add_teacher_to_class (teacher_id = 2, turma_id = 1)
 		
 		# Navigate without logging in to the assignments page to trigger login
 		helper_functions.logout(self)
@@ -106,7 +107,7 @@ class TestCase(unittest.TestCase):
 		# Add assignment
 		response = self.app.post(
 			'/assignments/create',
-			content_type='multipart/form-data', 
+			content_type='multipart/form-data',
 			data={
 				'title': 'Test assignment title',
 				'description': 'Test assignment description',

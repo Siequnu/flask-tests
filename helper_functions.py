@@ -12,6 +12,7 @@ app = create_app(Test)
 # Flask models
 from app import db
 from app.models import User, Turma, LibraryUpload, PeerReviewForm
+from app.classes.models import ClassManagement
 from app.api import models
 from app.api.models import ApiKey
 
@@ -32,14 +33,20 @@ def logout(self):
 def register_admin_user (username = 'Patrick'):
 	random_email = ''.join(random.choice(string.ascii_lowercase) for i in range(8))
 	random_student_number = ''.join(str(random.randint(1,9)) for i in range(8))
-	admin_user = User(username=username, email=random_email, student_number=random_student_number, email_confirmed = 1, is_admin = 1)
+	admin_user = User(username=username, email=random_email, student_number=random_student_number, email_confirmed = 1, is_admin = 1, is_superintendant = 1)
 	admin_user.set_password('test')
 	db.session.add(admin_user)
 	db.session.commit()
 	
 	new_admin_user = db.session.query(User).filter_by(username=username).first()
 	assert new_admin_user.is_admin == True
+	assert new_admin_user.is_superintendant == True
 
+
+def add_teacher_to_class (teacher_id, turma_id):
+		new_management = ClassManagement (user_id = teacher_id, turma_id = turma_id)	
+		db.session.add(new_management)
+		db.session.commit ()
 
 # Register a test student, with random email address and student number
 def register_student(self, username, password = 'test', confirm_email = True, ):
@@ -95,6 +102,13 @@ def add_turma ():
 	new_turma = db.session.query(Turma).filter_by(turma_label=random_turma_label).first()
 	assert new_turma.turma_term == 'Fall'
 	assert new_turma.turma_year != '2019'
+
+	#¡# Add a shim to ensure that each turma gets added as belonging to all administrators
+	#¡# This should be removed and a proper testing mechanism put into place that manualyl enables this and tests it
+	for user in User.query.all():
+		new_management = ClassManagement (user_id = user.id, turma_id = new_turma.id)
+		db.session.add(new_management)
+		db.session.commit
 
 # Add a peer review form
 def add_peer_review_form ():
