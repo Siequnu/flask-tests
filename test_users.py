@@ -106,7 +106,7 @@ class TestCase(unittest.TestCase):
 		# Main index page
 		response = helper_functions.login(self, 'Patrick' , 'test')
 		self.assertEqual(response.status_code, 200)
-		self.assertIn(b'Register new student', response.data)
+		self.assertIn(b'Manage classes', response.data)
 		
 		# Library page displays Upload new library file
 		response = self.app.get('/files/library/', follow_redirects=True)
