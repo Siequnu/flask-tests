@@ -56,7 +56,7 @@ class TestCase(unittest.TestCase):
 		self.assertIn(b'Writing', response.data)
 		self.assertIn(b'Fall', response.data)
 		self.assertIn(b'2020', response.data)
-		self.assertIn(b'Create new lesson', response.data)
+		self.assertIn(b'New lesson', response.data)
 
 		# Check create new lesson page
 		response = self.app.get('/classes/lesson/create/1', follow_redirects=True)
@@ -82,7 +82,7 @@ class TestCase(unittest.TestCase):
 		# Check if new lesson appeared on the class page
 		response = self.app.get('/classes/attendance/1', follow_redirects=True)
 		self.assertIn(b'2020-06-10', response.data)
-		self.assertIn(b'Create new lesson', response.data)
+		self.assertIn(b'New lesson', response.data)
 
 		# View attendance
 		response = self.app.get('/classes/attendance/view/1/', follow_redirects=True)
@@ -96,7 +96,7 @@ class TestCase(unittest.TestCase):
 		# Close the QR code
 		response = self.app.get('/classes/attendance/close/1/', follow_redirects=True)
 		self.assertIn(b'Attendance closed for', response.data)
-		self.assertIn(b'Lessons', response.data)
+		self.assertIn(b'Bulk create lessons', response.data)
 		self.assertIn(b'0 / 1', response.data)
 
 		helper_functions.logout (self)
@@ -104,7 +104,7 @@ class TestCase(unittest.TestCase):
 
 		# Check the attendance code entry page
 		response = self.app.get('/classes/attendance/code/', follow_redirects=True)
-		self.assertIn(b'To register attendance scan', response.data)
+		self.assertIn(b'Scan the QR code to register your attendance,', response.data)
 		self.assertIn(b'Enter class word here', response.data)
 		
 		# View own attendance record
