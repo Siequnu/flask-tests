@@ -55,7 +55,7 @@ class TestCase(unittest.TestCase):
 		# Test form admin page displays without any forms
 		response = self.app.get('/assignments/peer-review/forms/admin', follow_redirects=True)
 		self.assertEqual(response.status_code, 200)
-		self.assertIn(b'Create new form', response.data)
+		self.assertIn(b'New feedback form', response.data)
 		self.assertNotIn(b'Peer Review Form Description', response.data)
 		
 		# Test form builder page works
@@ -336,8 +336,6 @@ class TestCase(unittest.TestCase):
 		self.assertIn(b'3 / 3', response.data)
 		
 		# Test peer-review?
-		
-		
 
 
 if __name__ == '__main__':
