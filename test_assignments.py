@@ -111,7 +111,7 @@ class TestCase(unittest.TestCase):
 			data={
 				'title': 'Test assignment title',
 				'description': 'Test assignment description',
-				'due_date': '2021-03-27',
+				'due_date': '2029-03-27',
 				'target_turmas': 1,
 				'peer_review_necessary': 'n',
 				'peer_review_form_id': 1,
@@ -131,7 +131,7 @@ class TestCase(unittest.TestCase):
 			data={
 				'title': 'Test assignment title',
 				'description': 'Test assignment edited description',
-				'due_date': '2021-03-28',
+				'due_date': '2029-03-28',
 				'peer_review_necessary': 'n',
 				'peer_review_form_id': 1,
 			},
